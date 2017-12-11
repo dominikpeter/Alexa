@@ -32,7 +32,7 @@ def get_products(url):
 
 def product_to_dict(products):
     d = {}
-    for i in x:
+    for i in products:
         j = ''.join(i)
         name = re.compile("'dg_nameWithBrand':.+,")
         price = re.compile("'price':.+,")
@@ -50,17 +50,22 @@ def welcome():
     return question(welcome_msg)
 
 
-@ask.intent("NumberIntent", convert={"Anzahl": int})
+@ask.intent("YesIntent")
 def digitec():
     x = get_products(page)
     d = product_to_dict(x)
 
     output = []
-    for i, j in enumerate(d):
-        if i <= Anzahl:
+    try:
+        for i, j in enumerate(d):
+            price_ = str(d[j]).split('.')
+            fr, cent = [int(i) for i in price_]
             output.append(
-               'Das Podukt {} Kostet heute bei Ditgitec {}.'.format(i, d[i]))
-    return statement('\n'.join(output))
+                """Das Podukt {} kostet heute bei
+                Digitec {} Franken und {} Rappen.\n""".format(j, fr, cent*10))
+    except NameError:
+        output = [i for i in d]
+    return statement('. '.join(output))
 
 
 if __name__ == '__main__':
